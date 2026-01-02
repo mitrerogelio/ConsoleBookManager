@@ -1,7 +1,5 @@
 ﻿using ConsoleBookManager.Repositories;
 
-BookRepository bookRepository = new();
-
 bool running = true;
 while (running)
 {
@@ -20,10 +18,10 @@ while (running)
 
     switch (choice)
     {
-        case "1": bookRepository.ViewBooks(); break;
-        case "2": bookRepository.AddBook(); break;
-        case "3": bookRepository.MarkBookComplete(); break;
-        case "4": bookRepository.RemoveBook(); break;
+        // case "1": bookRepository.ViewBooks(); break;
+        // case "2": bookRepository.AddBook(); break;
+        // case "3": bookRepository.MarkBookComplete(); break;
+        // case "4": bookRepository.RemoveBook(); break;
         case "5": running = false; break;
         default: Console.WriteLine("Invalid choice. Please try again."); break;
     }

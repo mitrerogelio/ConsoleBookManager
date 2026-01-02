@@ -1,5 +1,3 @@
-using ConsoleBookManager.model;
-
 namespace ConsoleBookManager.Models;
 
 public class Book
@@ -52,11 +50,11 @@ public class Book
         TotalPages = totalPages;
     }
 
-    public void SetCurrentPage(int page)
+    public void SetCurrentPage(int? page)
     {
         if (page < 0 || page > TotalPages)
         {
-            throw new ArgumentOutOfRangeException(nameof(page));
+            throw new ArgumentOutOfRangeException(nameof(page), $"{nameof(page)} is invalid. Please try again");
         }
 
         CurrentPage = page;
@@ -96,10 +94,10 @@ public class Book
         TotalChapters = totalChapters;
     }
 
-    public void SetCurrentChapter(int currentChapter)
+    public void SetCurrentChapter(int? currentChapter)
     {
         if (!TotalChapters.HasValue)
-            throw new ArgumentException($"{nameof(TotalChapters)} have a value and be greater than zero.",
+            throw new ArgumentException($"{nameof(TotalChapters)} must have a value and be greater than zero.",
                 nameof(currentChapter));
         if (currentChapter < 0 || currentChapter > TotalChapters)
             throw new ArgumentOutOfRangeException(nameof(currentChapter), "Invalid chapter amount.");
@@ -112,7 +110,9 @@ public class Book
         else
         {
             CurrentChapter = currentChapter;
-            Status = BookStatus.Reading;
         }
+
+        if (currentChapter is not null)
+            Status = BookStatus.Reading;
     }
 }

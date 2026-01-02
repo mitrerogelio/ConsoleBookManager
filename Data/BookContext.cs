@@ -1,8 +1,7 @@
-using ConsoleBookManager.model;
 using ConsoleBookManager.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ConsoleBookManager.data;
+namespace ConsoleBookManager.Data;
 
 public class BookContext : DbContext
 {

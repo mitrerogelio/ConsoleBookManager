@@ -1,4 +1,4 @@
-namespace ConsoleBookManager.model;
+namespace ConsoleBookManager.Models;
 
 public enum BookStatus
 {

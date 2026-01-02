@@ -1,10 +1,41 @@
-/*
- * Repositories answers the question "where does data live?"
- * In other words, "how do I store and retrieve books?"
- */
+using ConsoleBookManager.Data;
+using ConsoleBookManager.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleBookManager.Repositories;
 
-public class BookRepository
+public class BookRepository(BookContext context) : IBookRepository
 {
+    public IEnumerable<Book> GetBooks(IEnumerable<BookStatus>? status = null)
+    {
+        return status is null
+            ? context.Books.AsNoTracking()
+            : context.Books.AsNoTracking().Where(b => status.Contains(b.Status));
+    }
+
+    public Book? GetBook(int id)
+    {
+        return context.Books.Find(id);
+    }
+
+    public Book AddBook(Book book)
+    {
+        context.Books.Add(book);
+        context.SaveChanges();
+        return book;
+    }
+
+    public void UpdateBook(Book book)
+    {
+        context.Books.Update(book);
+        context.SaveChanges();
+    }
+
+    public void DeleteBook(int id)
+    {
+        Book? book = context.Books.Find(id);
+        if (book == null) return;
+        context.Books.Remove(book);
+        context.SaveChanges();
+    }
 }
