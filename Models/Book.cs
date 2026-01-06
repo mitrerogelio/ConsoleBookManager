@@ -52,9 +52,17 @@ public class Book
 
     public void SetCurrentPage(int? page)
     {
+        if (page is null)
+        {
+            CurrentPage = null;
+            Status = BookStatus.Inactive;
+            return;
+        }
+
         if (page < 0 || page > TotalPages)
         {
-            throw new ArgumentOutOfRangeException(nameof(page), $"{nameof(page)} is invalid. Please try again");
+            throw new ArgumentOutOfRangeException(nameof(page),
+                $"{nameof(page)} is invalid. Please try again");
         }
 
         CurrentPage = page;
@@ -82,37 +90,42 @@ public class Book
         DueDate = dueDate;
     }
 
-    public void SetTotalChapters(int totalChapters)
+    public void SetTotalChapters(int? totalChapters)
     {
-        if (totalChapters <= 0)
-            throw new ArgumentOutOfRangeException(nameof(totalChapters), "TotalChapters must be greater than zero.");
+        TotalChapters = totalChapters switch
+        {
+            null => null,
+            <= 0 => throw new ArgumentOutOfRangeException(nameof(totalChapters),
+                "TotalChapters must be greater than zero."),
+            _ => totalChapters
+        };
 
         if (TotalChapters.HasValue && CurrentChapter > totalChapters)
             throw new InvalidOperationException(
-                $"{nameof(TotalChapters)} cannot be less than {nameof(CurrentChapter)}.");
+                $"{nameof(totalChapters)} cannot be less than {nameof(CurrentChapter)}. Maybe reset {nameof(CurrentChapter)} first?");
 
         TotalChapters = totalChapters;
     }
 
     public void SetCurrentChapter(int? currentChapter)
     {
+        if (currentChapter is null)
+        {
+            CurrentChapter = null;
+            return;
+        }
+
         if (!TotalChapters.HasValue)
             throw new ArgumentException($"{nameof(TotalChapters)} must have a value and be greater than zero.",
                 nameof(currentChapter));
         if (currentChapter < 0 || currentChapter > TotalChapters)
             throw new ArgumentOutOfRangeException(nameof(currentChapter), "Invalid chapter amount.");
 
+        CurrentChapter = currentChapter;
+
         if (currentChapter == TotalChapters)
         {
-            CurrentChapter = currentChapter;
             Status = BookStatus.Finished;
         }
-        else
-        {
-            CurrentChapter = currentChapter;
-        }
-
-        if (currentChapter is not null)
-            Status = BookStatus.Reading;
     }
 }

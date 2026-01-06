@@ -10,17 +10,27 @@ public class BookService(IBookRepository repository)
         repository.AddBook(new Book(title, author, totalPages));
     }
 
+    public void DeleteBook(int bookId)
+    {
+        bool success = repository.DeleteBook(bookId);
+        if (!success) throw new ArgumentNullException($"Book with id {bookId} does not exist.");
+    }
+
     public IEnumerable<Book> GetBooks(IEnumerable<BookStatus>? status = null)
     {
         return repository.GetBooks(status);
         // TODO: Sorting logic (e.g. ascending vs descending)?
     }
 
-    public void UpdateTitle(int bookId, string title)
+    private Book GetRequiredBook(int bookId)
     {
         Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
+        return book ?? throw new KeyNotFoundException($"Book with id {bookId} does not exist.");
+    }
+
+    public void UpdateTitle(int bookId, string title)
+    {
+        Book book = GetRequiredBook(bookId);
         if (book.Title == title)
             throw new InvalidOperationException($"Title is already: {book.Title}. Your input: {title}");
         book.SetTitle(title);
@@ -29,9 +39,7 @@ public class BookService(IBookRepository repository)
 
     public void UpdateAuthor(int bookId, string author)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
+        Book book = GetRequiredBook(bookId);
         if (book.Author == author)
             throw new InvalidOperationException($"Author is already set to: {book.Author}. Your input: {author}");
         book.SetAuthor(author);
@@ -40,36 +48,27 @@ public class BookService(IBookRepository repository)
 
     public void UpdateTotalPages(int bookId, int newPageTotal)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
-        if (book.TotalPages <= book.CurrentPage)
+        Book book = GetRequiredBook(bookId);
+        if (newPageTotal < book.CurrentPage)
             book.SetCurrentPage(null);
         book.SetTotalPages(newPageTotal);
         repository.UpdateBook(book);
     }
 
-    public void UpdateCurrentPage(int bookId, int? newCurrentPageNumber)
+    public void UpdateCurrentPage(int bookId, int newCurrentPageNumber)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
-
-        if (book.CurrentPage <= newCurrentPageNumber)
-            throw new ArgumentOutOfRangeException(nameof(newCurrentPageNumber),
-                $"The page number you provided ({newCurrentPageNumber}) is less than the current page number of: {book.CurrentPage}. Please try again");
-
+        Book book = GetRequiredBook(bookId);
         book.SetCurrentPage(newCurrentPageNumber);
         repository.UpdateBook(book);
     }
 
 
-    public void UpdateTotalChapters(int bookId, int newChapterTotal)
+    public void UpdateTotalChapters(int bookId, int? newChapterTotal)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
-        if (book.TotalChapters <= book.CurrentChapter)
+        Book book = GetRequiredBook(bookId);
+        if (newChapterTotal is null)
+            book.SetTotalChapters(null);
+        if (book.CurrentChapter <= newChapterTotal)
             book.SetCurrentChapter(null);
         book.SetTotalChapters(newChapterTotal);
         repository.UpdateBook(book);
@@ -77,11 +76,10 @@ public class BookService(IBookRepository repository)
 
     public void UpdateCurrentChapter(int bookId, int? newCurrentChapter)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
-
-        if (book.CurrentChapter <= newCurrentChapter)
+        Book book = GetRequiredBook(bookId);
+        if (newCurrentChapter is null)
+            book.SetCurrentChapter(null);
+        if (book.CurrentChapter > newCurrentChapter)
             throw new ArgumentOutOfRangeException(nameof(newCurrentChapter),
                 $"The chapter number you provided ({newCurrentChapter}) is invalid. Current chapter number: {book.CurrentChapter}.");
 
@@ -91,23 +89,36 @@ public class BookService(IBookRepository repository)
 
     public void WishlistBook(int bookId, bool wishlistStatus)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
+        Book book = GetRequiredBook(bookId);
         book.SetWishlisted(wishlistStatus);
         repository.UpdateBook(book);
     }
 
-    public int GetDailyReadingGoal(int bookId, DateTime date)
+    public void SetDueDate(int bookId, DateTime dueDate)
     {
-        Book? book = repository.GetBook(bookId);
-        if (book is null)
-            throw new InvalidOperationException($"Book with id {bookId} does not exist.");
-
-        if (book.DueDate is not null) return (book.DueDate.Value.Date - DateTime.Today).Days;
-        book.SetDueDate(date);
+        Book book = GetRequiredBook(bookId);
+        book.SetDueDate(dueDate);
         repository.UpdateBook(book);
+    }
 
-        return (book.DueDate!.Value.Date - DateTime.Today).Days;
+    public int GetDailyReadingGoal(int bookId, DateTime? date)
+    {
+        Book book = GetRequiredBook(bookId);
+
+        DateTime dueDate = date
+                           ?? book.DueDate
+                           ?? throw new InvalidOperationException("No due date provided.");
+
+        int pagesRemaining = book.TotalPages - (book.CurrentPage ?? 0);
+        if (pagesRemaining <= 0) return 0;
+
+        int daysRemaining = (dueDate.Date - DateTime.Today).Days;
+
+        return daysRemaining switch
+        {
+            0 => pagesRemaining,
+            < 0 => throw new InvalidOperationException($"This book was due {Math.Abs(daysRemaining)} days ago!"),
+            _ => (int)Math.Ceiling((double)pagesRemaining / daysRemaining)
+        };
     }
 }

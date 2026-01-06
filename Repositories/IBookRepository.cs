@@ -8,5 +8,5 @@ public interface IBookRepository
     Book? GetBook(int id);
     Book AddBook(Book book);
     void UpdateBook(Book book);
-    void DeleteBook(int id);
+    bool DeleteBook(int id);
 }

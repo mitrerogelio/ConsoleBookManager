@@ -31,11 +31,12 @@ public class BookRepository(BookContext context) : IBookRepository
         context.SaveChanges();
     }
 
-    public void DeleteBook(int id)
+    public bool DeleteBook(int id)
     {
-        Book? book = context.Books.Find(id);
-        if (book == null) return;
+        Book? book = GetBook(id);
+        if (book is null) return false;
         context.Books.Remove(book);
         context.SaveChanges();
+        return true;
     }
 }
