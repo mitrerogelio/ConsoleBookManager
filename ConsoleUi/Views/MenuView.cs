@@ -1,6 +1,5 @@
 namespace ConsoleBookManager.ConsoleUi.Views;
 
-public class MenuView
+public static class MenuView
 {
-    
 }

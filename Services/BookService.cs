@@ -18,11 +18,10 @@ public class BookService(IBookRepository repository)
 
     public IEnumerable<Book> GetBooks(IEnumerable<BookStatus>? status = null)
     {
-        return repository.GetBooks(status);
-        // TODO: Sorting logic (e.g. ascending vs descending)?
+        return repository.GetBooks(status).OrderByDescending(b => b.Id);
     }
 
-    private Book GetRequiredBook(int bookId)
+    public Book GetRequiredBook(int bookId)
     {
         Book? book = repository.GetBook(bookId);
         return book ?? throw new KeyNotFoundException($"Book with id {bookId} does not exist.");
@@ -61,7 +60,6 @@ public class BookService(IBookRepository repository)
         book.SetCurrentPage(newCurrentPageNumber);
         repository.UpdateBook(book);
     }
-
 
     public void UpdateTotalChapters(int bookId, int? newChapterTotal)
     {
