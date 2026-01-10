@@ -78,4 +78,20 @@ public static class BookView
         Console.Write(new string('-', totalBlocks - filledBlocks)); // Empty part
         Console.WriteLine($"] {percent}%");
     }
+
+    public static void ShowPropertiesToUpdate()
+    {
+        Console.WriteLine("\n----------------------------------------");
+        Console.WriteLine(" SELECT PROPERTY TO UPDATE");
+        Console.WriteLine("----------------------------------------");
+        Console.WriteLine(" 1. Title");
+        Console.WriteLine(" 2. Author");
+        Console.WriteLine(" 3. Total Pages");
+        Console.WriteLine(" 4. Current Page");
+        Console.WriteLine(" 5. Total Chapters");
+        Console.WriteLine(" 6. Current Chapter");
+        Console.WriteLine(" 7. Due Date");
+        Console.WriteLine(" 0. Cancel / Go Back");
+        Console.WriteLine("----------------------------------------");
+    }
 }

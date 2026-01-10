@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ConsoleBookManager.ConsoleUi.Utilities;
 
 public static class ConsoleHelper
@@ -7,26 +9,13 @@ public static class ConsoleHelper
         while (true)
         {
             Console.WriteLine(prompt);
-            string? input = Console.ReadLine();
-
-            if (int.TryParse(input, out int result))
+            string? input = Console.ReadLine()?.Trim();
+            if (int.TryParse(input, out int result) && result > 0)
             {
                 return result;
             }
 
             DisplayError(errorMsg);
-        }
-    }
-
-    public static int GetValidPageCount(string msg)
-    {
-        while (true)
-        {
-            Console.WriteLine(msg);
-            string? input = Console.ReadLine();
-            if (int.TryParse(input, out int result) && result > 0)
-                return result;
-            Console.WriteLine("Invalid page number, Please enter a positive number");
         }
     }
 
@@ -42,6 +31,35 @@ public static class ConsoleHelper
             }
 
             DisplayError("Invalid input.");
+        }
+    }
+
+    public static DateTime GetDate(string prompt, string errorMsg)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            string? input = Console.ReadLine()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine($"Setting the date to: {DateTime.Today.ToShortDateString()}");
+                return DateTime.Today;
+            }
+
+            if (DateTime.TryParse(input, out DateTime result))
+            {
+                if (result >= DateTime.Today)
+                {
+                    return result;
+                }
+
+                DisplayError("Error: Date cannot be in the past.");
+            }
+            else
+            {
+                DisplayError(errorMsg);
+            }
         }
     }
 

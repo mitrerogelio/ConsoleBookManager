@@ -1,5 +1,5 @@
 using ConsoleBookManager.ConsoleUi.Utilities;
-using ConsoleBookManager.Models;
+using ConsoleBookManager.ConsoleUi.Views;
 
 namespace ConsoleBookManager.ConsoleUi.Menus;
 
@@ -12,35 +12,35 @@ public static class BookMenu
 
         string title = ConsoleHelper.GetValidStr("Enter the book title: ");
         string author = ConsoleHelper.GetValidStr("Enter the book author: ");
-        int pages = ConsoleHelper.GetValidPageCount("Enter the total amount of pages in this book: ");
+        int pages = ConsoleHelper.GetInt("Enter the total amount of pages in this book: ", "Invalid. Please try again.");
         return (title, author, pages);
     }
 
-    public static int SelectPropertyToUpdate()
+    public static BookUpdateOptions SelectPropertyToUpdate()
     {
-        Console.WriteLine("\n----------------------------------------");
-        Console.WriteLine(" SELECT PROPERTY TO UPDATE");
-        Console.WriteLine("----------------------------------------");
-        Console.WriteLine(" 1. Title");
-        Console.WriteLine(" 2. Author");
-        Console.WriteLine(" 3. Total Pages");
-        Console.WriteLine(" 4. Current Page");
-        Console.WriteLine(" 5. Total Chapters");
-        Console.WriteLine(" 6. Current Chapter");
-        Console.WriteLine(" 7. Due Date");
-        Console.WriteLine(" 0. Cancel / Go Back");
-        Console.WriteLine("----------------------------------------");
-
+        BookView.ShowPropertiesToUpdate();
         while (true)
         {
             int input = ConsoleHelper.GetInt("Enter a choice: ", "Invalid input. Please try again.");
-
-            if (input is >= 0 and <= 7)
+            try
             {
-                return input;
+                return input switch
+                {
+                    0 => BookUpdateOptions.Cancel,
+                    1 => BookUpdateOptions.Title,
+                    2 => BookUpdateOptions.Author,
+                    3 => BookUpdateOptions.TotalPages,
+                    4 => BookUpdateOptions.CurrentPage,
+                    5 => BookUpdateOptions.TotalChapters,
+                    6 => BookUpdateOptions.CurrentChapter,
+                    7 => BookUpdateOptions.DueDate,
+                    _ => throw new InvalidOperationException("Unreachable")
+                };
             }
-
-            ConsoleHelper.DisplayError("Invalid selection. Please choose 0-7.");
+            catch (Exception e)
+            {
+                ConsoleHelper.DisplayError($"Error updating the book: {e.Message}");
+            }
         }
     }
 }

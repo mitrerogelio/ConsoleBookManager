@@ -72,12 +72,60 @@ public class BookController(BookService service)
     private void UpdateBook()
     {
         int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
-        Book? book = service.GetRequiredBook(bookId);
-        BookView.DisplayBookDetails(book);
-        int userChoice = BookMenu.SelectPropertyToUpdate();
-        // TODO: call appropriate service method
-        // will use switch statement
+        try
+        {
+            Book book = service.GetRequiredBook(bookId);
+            BookView.DisplayBookDetails(book);
+        }
+        catch (Exception e)
+        {
+            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
+            return;
+        }
+
+        BookUpdateOptions userChoice = BookMenu.SelectPropertyToUpdate();
+        switch (userChoice)
+        {
+            case BookUpdateOptions.Title:
+                string newTitle = ConsoleHelper.GetValidStr("Enter the title: ");
+                service.UpdateTitle(bookId, newTitle);
+                break;
+            case BookUpdateOptions.Author:
+                string newAuthor = ConsoleHelper.GetValidStr("Enter the author name: ");
+                service.UpdateAuthor(bookId, newAuthor);
+                break;
+            case BookUpdateOptions.TotalPages:
+                int newTotalPgs = ConsoleHelper.GetInt("Enter the total number of pages: ",
+                    "Invalid Page Number: Please try again.");
+                service.UpdateTotalPages(bookId, newTotalPgs);
+                break;
+            case BookUpdateOptions.CurrentPage:
+                int newCurrentPg = ConsoleHelper.GetInt("Enter the current page: ", "Invalid. Please try again.");
+                service.UpdateCurrentPage(bookId, newCurrentPg);
+                break;
+            case BookUpdateOptions.TotalChapters:
+                int newTotalChp =
+                    ConsoleHelper.GetInt("Enter the total amount of chapters: ", "Invalid. Please try again.");
+                service.UpdateTotalChapters(bookId, newTotalChp);
+                break;
+            case BookUpdateOptions.CurrentChapter:
+                int newCurrentChp =
+                    ConsoleHelper.GetInt("Enter the current chapter: ", "Invalid. Please try again.");
+                service.UpdateCurrentChapter(bookId, newCurrentChp);
+                break;
+            case BookUpdateOptions.DueDate:
+                DateTime newDate = ConsoleHelper.GetDate("Enter the due date (MM/DD/YYYY): ", "Invalid. Please try again.");
+                service.SetDueDate(bookId, newDate);
+                break;
+            case BookUpdateOptions.Cancel:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
-    private void DeleteBook() { }
+    public void DeleteBook()
+    {
+
+    }
 }
