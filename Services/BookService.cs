@@ -13,7 +13,10 @@ public class BookService(IBookRepository repository)
     public void DeleteBook(int bookId)
     {
         bool success = repository.DeleteBook(bookId);
-        if (!success) throw new ArgumentNullException($"Book with id {bookId} does not exist.");
+        if (!success)
+        {
+            throw new ArgumentNullException($"Book with id {bookId} does not exist.");
+        }
     }
 
     public IEnumerable<Book> GetBooks(IEnumerable<BookStatus>? status = null)

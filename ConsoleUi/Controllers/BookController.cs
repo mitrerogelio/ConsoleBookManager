@@ -32,6 +32,9 @@ public class BookController(BookService service)
                 case 4:
                     DeleteBook();
                     break;
+                case 5:
+                    AddToWishlist();
+                    break;
                 case 0:
                     _running = false;
                     break;
@@ -114,7 +117,8 @@ public class BookController(BookService service)
                 service.UpdateCurrentChapter(bookId, newCurrentChp);
                 break;
             case BookUpdateOptions.DueDate:
-                DateTime newDate = ConsoleHelper.GetDate("Enter the due date (MM/DD/YYYY): ", "Invalid. Please try again.");
+                DateTime newDate =
+                    ConsoleHelper.GetDate("Enter the due date (MM/DD/YYYY): ", "Invalid. Please try again.");
                 service.SetDueDate(bookId, newDate);
                 break;
             case BookUpdateOptions.Cancel:
@@ -124,8 +128,33 @@ public class BookController(BookService service)
         }
     }
 
-    public void DeleteBook()
+    private void DeleteBook()
     {
+        int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
+        try
+        {
+            service.DeleteBook(bookId);
+        }
+        catch (Exception e)
+        {
+            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
+            return;
+        }
+        ConsoleHelper.DisplaySuccess($"Book {bookId} has been deleted.");
+    }
 
+    private void AddToWishlist()
+    {
+        int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
+        try
+        {
+            Book book = service.GetRequiredBook(bookId);
+            service.WishlistBook(book.Id, true);
+            ConsoleHelper.DisplaySuccess($"{book.Title} has been added to the wishlist!");
+        }
+        catch (Exception e)
+        {
+            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
+        }
     }
 }
