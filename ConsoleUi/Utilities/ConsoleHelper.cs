@@ -10,7 +10,7 @@ public static class ConsoleHelper
         {
             Console.WriteLine(prompt);
             string? input = Console.ReadLine()?.Trim();
-            if (int.TryParse(input, out int result) && result > 0)
+            if (int.TryParse(input, out int result) && result >= 0)
             {
                 return result;
             }
