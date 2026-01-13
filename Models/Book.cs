@@ -3,8 +3,8 @@ namespace ConsoleBookManager.Models;
 public class Book
 {
     public int Id { get; private set; }
-    public string Title { get; private set; }
-    public string Author { get; private set; }
+    public string Title { get; private set; } = null!;
+    public string Author { get; private set; } = null!;
     public int TotalPages { get; private set; }
     public int? CurrentPage { get; private set; }
     public BookStatus Status { get; private set; }

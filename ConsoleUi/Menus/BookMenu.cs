@@ -12,7 +12,8 @@ public static class BookMenu
 
         string title = ConsoleHelper.GetValidStr("Enter the book title: ");
         string author = ConsoleHelper.GetValidStr("Enter the book author: ");
-        int pages = ConsoleHelper.GetInt("Enter the total amount of pages in this book: ", "Invalid. Please try again.");
+        int pages = ConsoleHelper.GetInt("Enter the total amount of pages in this book: ",
+            "Invalid. Please try again.");
         return (title, author, pages);
     }
 
@@ -42,5 +43,13 @@ public static class BookMenu
                 ConsoleHelper.DisplayError($"Error updating the book: {e.Message}");
             }
         }
+    }
+
+    public static DateTime PromptForDate()
+    {
+        Console.Clear();
+        Console.WriteLine("=== Get a daily reading goal ===");
+        return ConsoleHelper.GetDate("Please provide a due date for the book. (MM/DD/YYYY)",
+            "Error getting date. Please try again");
     }
 }

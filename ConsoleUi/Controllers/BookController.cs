@@ -35,7 +35,11 @@ public class BookController(BookService service)
                 case 5:
                     AddToWishlist();
                     break;
+                case 6:
+                    GetReadingPlan();
+                    break;
                 case 0:
+                    MainMenu.PlayOutroAnimation();
                     _running = false;
                     break;
                 default:
@@ -74,17 +78,8 @@ public class BookController(BookService service)
 
     private void UpdateBook()
     {
+        ListBooks();
         int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
-        try
-        {
-            Book book = service.GetRequiredBook(bookId);
-            BookView.DisplayBookDetails(book);
-        }
-        catch (Exception e)
-        {
-            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
-            return;
-        }
 
         BookUpdateOptions userChoice = BookMenu.SelectPropertyToUpdate();
         switch (userChoice)
@@ -130,6 +125,7 @@ public class BookController(BookService service)
 
     private void DeleteBook()
     {
+        ListBooks();
         int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
         try
         {
@@ -145,6 +141,7 @@ public class BookController(BookService service)
 
     private void AddToWishlist()
     {
+        ListBooks();
         int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
         try
         {
@@ -155,6 +152,22 @@ public class BookController(BookService service)
         catch (Exception e)
         {
             ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
+        }
+    }
+
+    private void GetReadingPlan()
+    {
+        ListBooks();
+        int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
+        DateTime date = BookMenu.PromptForDate();
+        try
+        {
+           (Book book, int pagesPerDay) data = service.GetDailyReadingGoal(bookId, date);
+           BookView.DisplayReadingGoal(data.book, data.pagesPerDay, date);
+        }
+        catch (Exception e)
+        {
+            ConsoleHelper.DisplayError($"Unable to generate a reading plan: {e.Message}]");
         }
     }
 }

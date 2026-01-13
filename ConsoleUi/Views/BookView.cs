@@ -1,4 +1,3 @@
-using ConsoleBookManager.ConsoleUi.Menus;
 using ConsoleBookManager.Models;
 
 namespace ConsoleBookManager.ConsoleUi.Views;
@@ -9,42 +8,45 @@ public static class BookView
     {
         Console.Clear();
         Console.WriteLine("=== Your Library ===\n");
-        Console.WriteLine("{0,-5} {1,-30} {2,-20} {3,-15}", "ID", "Title", "Author", "Status");
-        Console.WriteLine(new string('-', 75));
 
-        foreach (Book book in books)
+        IEnumerable<Book> bookList = books.ToList();
+        if (!bookList.Any())
         {
-            string title = (book.Title.Length > 27) ? book.Title[..27] + "..." : book.Title;
-            string author = book.Author;
-            string status = book.Status.ToString();
-            Console.WriteLine("{0,-5} {1,-30} {2,-20} {3,-15}",
-                book.Id, title, author, status);
+            Console.WriteLine("No books found in library.");
+        }
+        else
+        {
+            foreach (Book book in bookList)
+            {
+                PrintBookCard(book);
+                Console.WriteLine();
+            }
         }
 
-        Console.WriteLine("\nPress any key to return to menu...");
+        Console.WriteLine("Press any key to return to menu...");
         Console.ReadKey();
     }
 
-    public static void DisplayBookDetails(Book book)
+    private static void PrintBookCard(Book book)
     {
         Console.WriteLine("========================================");
-        Console.WriteLine($" {book.Title.ToUpper()}");
+        Console.Write(" [");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write($"#{book.Id}");
+        Console.ResetColor();
+        Console.WriteLine($"] {book.Title.ToUpper()}");
         Console.WriteLine("========================================");
 
-        // Basic Details
         Console.WriteLine($" Author:        {book.Author}");
         Console.WriteLine($" Status:        {book.Status}");
 
-        // Page Progress
         Console.WriteLine($" Pages:         {book.CurrentPage ?? 0} / {book.TotalPages}");
 
-        // Chapter Progress - if data is available
         if (book.TotalChapters.HasValue)
         {
             Console.WriteLine($" Chapters:      {book.CurrentChapter ?? 0} / {book.TotalChapters}");
         }
 
-        // Due Date - if data is available
         if (book.DueDate.HasValue)
         {
             int daysLeft = (int)(book.DueDate.Value - DateTime.Today).TotalDays;
@@ -59,13 +61,10 @@ public static class BookView
             Console.WriteLine($" Due Date:      {book.DueDate.Value.ToShortDateString()} {dueContext}");
         }
 
-        // Visual Progress Bar
         int percent = book.Progress ?? 0;
         DrawProgressBar(percent);
 
         Console.WriteLine("========================================");
-        Console.WriteLine("Press any key to return...");
-        Console.ReadKey();
     }
 
     private static void DrawProgressBar(int percent)
@@ -93,5 +92,31 @@ public static class BookView
         Console.WriteLine(" 7. Due Date");
         Console.WriteLine(" 0. Cancel / Go Back");
         Console.WriteLine("----------------------------------------");
+    }
+
+    public static void DisplayReadingGoal(Book book, int pagesPerDay, DateTime targetDate)
+    {
+        Console.Clear();
+        PrintBookCard(book);
+
+        Console.WriteLine("             READING PLAN");
+        Console.WriteLine("----------------------------------------");
+        Console.ResetColor();
+
+        int pagesLeft = book.TotalPages - (book.CurrentPage ?? 0);
+        int daysLeft = (targetDate.Date - DateTime.Today).Days;
+
+        Console.WriteLine($" Target Date:    {targetDate.ToShortDateString()}");
+        Console.WriteLine($" Pages Left:     {pagesLeft}");
+        Console.WriteLine($" Days to Goal:   {Math.Max(0, daysLeft)} days");
+
+        Console.WriteLine("----------------------------------------");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($" GOAL: Read {pagesPerDay} pages per day");
+        Console.ResetColor();
+        Console.WriteLine("========================================");
+
+        Console.WriteLine("\nPress any key to return...");
+        Console.ReadKey();
     }
 }
