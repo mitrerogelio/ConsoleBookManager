@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace ConsoleBookManager.ConsoleUi.Utilities;
 
 public static class ConsoleHelper
@@ -25,7 +23,7 @@ public static class ConsoleHelper
         {
             Console.WriteLine(msg);
             string? input = Console.ReadLine()?.Trim();
-            if (input is not null || input.Length > 0)
+            if (input is not null && input.Length > 0)
             {
                 return input;
             }

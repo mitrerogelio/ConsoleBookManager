@@ -102,7 +102,7 @@ public class BookService(IBookRepository repository)
         repository.UpdateBook(book);
     }
 
-    public int GetDailyReadingGoal(int bookId, DateTime? date)
+    public (Book Book, int PagesPerDay) GetDailyReadingGoal(int bookId, DateTime? date)
     {
         Book book = GetRequiredBook(bookId);
 
@@ -111,15 +111,15 @@ public class BookService(IBookRepository repository)
                            ?? throw new InvalidOperationException("No due date provided.");
 
         int pagesRemaining = book.TotalPages - (book.CurrentPage ?? 0);
-        if (pagesRemaining <= 0) return 0;
-
         int daysRemaining = (dueDate.Date - DateTime.Today).Days;
 
-        return daysRemaining switch
+        int goal = daysRemaining switch
         {
             0 => pagesRemaining,
             < 0 => throw new InvalidOperationException($"This book was due {Math.Abs(daysRemaining)} days ago!"),
             _ => (int)Math.Ceiling((double)pagesRemaining / daysRemaining)
         };
+
+        return (book, goal);
     }
 }
