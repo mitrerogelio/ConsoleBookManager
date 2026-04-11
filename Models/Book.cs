@@ -27,14 +27,14 @@ public class Book
 
     public void SetTitle(string title)
     {
-        if (string.IsNullOrEmpty(title))
+        if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentNullException(nameof(title), "Title cannot be null or empty.");
         Title = title.Trim();
     }
 
     public void SetAuthor(string author)
     {
-        if (string.IsNullOrEmpty(author))
+        if (string.IsNullOrWhiteSpace(author))
             throw new ArgumentNullException(nameof(author), $"{nameof(Author)} cannot be null or empty.");
         Author = author.Trim();
     }
@@ -116,16 +116,29 @@ public class Book
         }
 
         if (!TotalChapters.HasValue)
+        {
             throw new ArgumentException($"{nameof(TotalChapters)} must have a value and be greater than zero.",
                 nameof(currentChapter));
+        }
+
         if (currentChapter < 0 || currentChapter > TotalChapters)
+        {
             throw new ArgumentOutOfRangeException(nameof(currentChapter), "Invalid chapter amount.");
+        }
 
         CurrentChapter = currentChapter;
 
         if (currentChapter == TotalChapters)
         {
             Status = BookStatus.Finished;
+        }
+        else if (currentChapter == 0)
+        {
+            Status = BookStatus.Inactive;
+        }
+        else if (currentChapter > 0)
+        {
+            Status = BookStatus.Reading;
         }
     }
 }
