@@ -79,6 +79,35 @@ public class BookTests
 		});
 	}
 
+	[Fact]
+	public void Book_SetCurrentPage_FailsWithInvalidArg()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act & Assert
+		Assert.Throws<ArgumentOutOfRangeException>(() =>
+		{
+			book.SetCurrentPage(900);
+		});
+	}
+
+	[Fact]
+	public void Book_SetCurrentChapter_FailsWithInvalidArg()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetTotalChapters(5);
+
+		// Assert
+		Assert.Throws<ArgumentOutOfRangeException>(() =>
+		{
+			book.SetCurrentChapter(10);
+		});
+	}
+
 	[Theory]
 	[InlineData(50, 100, 50)]
 	[InlineData(10, 100, 10)]
@@ -160,6 +189,64 @@ public class BookTests
 		Assert.Equal(BookStatus.Reading, book.Status);
 	}
 
+	[Fact]
+	public void Book_Status_FinishedWhenPageLimitIsReached()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetCurrentPage(100);
+
+		// Assert
+		Assert.Equal(BookStatus.Finished, book.Status);
+	}
+
+	[Fact]
+	public void Book_Status_FinishedWhenChaptersAreFinished()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetTotalChapters(10);
+		book.SetCurrentChapter(10);
+
+		// Assert
+		Assert.Equal(BookStatus.Finished, book.Status);
+	}
+
+	[Fact]
+	public void Book_Status_InactiveOnChapterZero()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetTotalChapters(10);
+		book.SetCurrentChapter(0);
+
+		// Assert
+		Assert.Equal(BookStatus.Inactive, book.Status);
+	}
+
+	[Fact]
+	public void Book_Status_InactiveWhileCurrentPageIsSet()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetTotalChapters(10);
+		book.SetCurrentPage(50);
+		book.SetCurrentChapter(0);
+
+		// Assert
+		Assert.Equal(BookStatus.Inactive, book.Status);
+		Assert.Equal(0, book.CurrentPage);
+	}
+
+
 	[Theory]
 	[InlineData(true, BookStatus.Wishlisted)]
 	[InlineData(false, BookStatus.Inactive)]
@@ -229,5 +316,67 @@ public class BookTests
 			book.SetTotalChapters(1);
 			book.SetCurrentChapter(2);
 		});
+	}
+
+	[Fact]
+	public void Book_SetCurrentChapter_AllowsNullArg()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetTotalChapters(5);
+		book.SetCurrentChapter(null);
+
+		// Assert
+		Assert.Null(book.CurrentChapter);
+	}
+
+	[Fact]
+	public void Book_SetDueDate_RejectsPastDateTimeArg()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+		DateTime pastDate = DateTime.Today.AddDays(-1);
+
+		// Act
+		var exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
+			{
+				book.SetDueDate(pastDate);
+			}
+		);
+
+		// Assert
+		Assert.Equal("dueDate", exception.ParamName);
+		Assert.Equal(pastDate, exception.ActualValue);
+	}
+
+	[Theory]
+	[InlineData(0)]
+	[InlineData(100)]
+	public void Book_SetDueDate_AllowsFutureDates(int daysInFuture)
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+		DateTime expectedDate = DateTime.Today.AddDays(daysInFuture);
+
+		// Act
+		book.SetDueDate(expectedDate);
+
+		// Assert
+		Assert.Equal(expectedDate, book.DueDate);
+	}
+
+	[Fact]
+	public void Book_SetDueDate_AllowsMaxDate()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act
+		book.SetDueDate(DateTime.MaxValue);
+
+		// Assert
+		Assert.Equal(DateTime.MaxValue, book.DueDate);
 	}
 }

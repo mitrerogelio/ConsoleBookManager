@@ -28,24 +28,32 @@ public class Book
     public void SetTitle(string title)
     {
         if (string.IsNullOrWhiteSpace(title))
+        {
             throw new ArgumentNullException(nameof(title), "Title cannot be null or empty.");
+        }
         Title = title.Trim();
     }
 
     public void SetAuthor(string author)
     {
         if (string.IsNullOrWhiteSpace(author))
+        {
             throw new ArgumentNullException(nameof(author), $"{nameof(Author)} cannot be null or empty.");
+        }
         Author = author.Trim();
     }
 
     public void SetTotalPages(int totalPages)
     {
         if (totalPages <= 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(totalPages),
                 $"{nameof(TotalPages)} must be greater than zero.");
+        }
         if (CurrentPage > totalPages)
+        {
             throw new ArgumentOutOfRangeException(nameof(totalPages), $"Invalid page number input.");
+        }
 
         TotalPages = totalPages;
     }
@@ -67,25 +75,55 @@ public class Book
 
         CurrentPage = page;
 
-        if (page == 0)
-            Status = BookStatus.Inactive;
-        else if (page == TotalPages)
-            Status = BookStatus.Finished;
-        else Status = BookStatus.Reading;
+        if (TotalChapters is null)
+        {
+            if (page == 0)
+            {
+                Status = BookStatus.Inactive;
+            }
+            else if (page == TotalPages)
+            {
+                Status = BookStatus.Finished;
+            }
+            else
+            {
+                Status = BookStatus.Reading;
+            }
+        }
+        else
+        {
+            if (page == 0)
+            {
+                CurrentChapter = 0;
+                Status = BookStatus.Inactive;
+            }
+            if (page == TotalPages)
+            {
+                TotalChapters = null;
+                CurrentChapter = null;
+                Status = BookStatus.Finished;
+            }
+        }
     }
 
     public void SetWishlisted(bool wishlisted)
     {
         if (wishlisted)
+        {
             Status = BookStatus.Wishlisted;
+        }
         else if (CurrentPage == 0)
+        {
             Status = BookStatus.Inactive;
+        }
     }
 
     public void SetDueDate(DateTime dueDate)
     {
         if (dueDate < DateTime.Today)
-            throw new ArgumentException("Due date must be in the future.", nameof(dueDate));
+        {
+            throw new ArgumentOutOfRangeException(nameof(dueDate), dueDate, "Due Date must be today or in the future.");
+        }
 
         DueDate = dueDate;
     }
@@ -101,8 +139,9 @@ public class Book
         };
 
         if (TotalChapters.HasValue && CurrentChapter > totalChapters)
-            throw new InvalidOperationException(
-                $"{nameof(totalChapters)} cannot be less than {nameof(CurrentChapter)}. Maybe reset {nameof(CurrentChapter)} first?");
+        {
+            throw new ArgumentOutOfRangeException(nameof(totalChapters), totalChapters, "Cannot set total chapters to a value less than current chapter.");
+        }
 
         TotalChapters = totalChapters;
     }
@@ -115,7 +154,7 @@ public class Book
             return;
         }
 
-        if (!TotalChapters.HasValue)
+        if (TotalChapters is null)
         {
             throw new ArgumentException($"{nameof(TotalChapters)} must have a value and be greater than zero.",
                 nameof(currentChapter));
@@ -123,22 +162,33 @@ public class Book
 
         if (currentChapter < 0 || currentChapter > TotalChapters)
         {
-            throw new ArgumentOutOfRangeException(nameof(currentChapter), "Invalid chapter amount.");
+            throw new ArgumentOutOfRangeException(nameof(currentChapter), "Current chapter cannot be less than zero or greater than total chapters.");
         }
 
         CurrentChapter = currentChapter;
 
-        if (currentChapter == TotalChapters)
+        if (CurrentPage is null)
         {
-            Status = BookStatus.Finished;
+            if (currentChapter == TotalChapters)
+            {
+                Status = BookStatus.Finished;
+            }
+            else if (currentChapter == 0)
+            {
+                Status = BookStatus.Inactive;
+            }
+            else if (currentChapter > 0)
+            {
+                Status = BookStatus.Reading;
+            }
         }
-        else if (currentChapter == 0)
+        else
         {
-            Status = BookStatus.Inactive;
-        }
-        else if (currentChapter > 0)
-        {
-            Status = BookStatus.Reading;
+            if (currentChapter == 0)
+            {
+                CurrentPage = 0;
+                Status = BookStatus.Inactive;
+            }
         }
     }
 }
