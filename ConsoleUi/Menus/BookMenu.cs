@@ -27,7 +27,7 @@ public static class BookMenu
             {
                 return input switch
                 {
-                    0 => BookUpdateOptions.Cancel,
+                    0 => BookUpdateOptions.All,
                     1 => BookUpdateOptions.Title,
                     2 => BookUpdateOptions.Author,
                     3 => BookUpdateOptions.TotalPages,
@@ -35,6 +35,7 @@ public static class BookMenu
                     5 => BookUpdateOptions.TotalChapters,
                     6 => BookUpdateOptions.CurrentChapter,
                     7 => BookUpdateOptions.DueDate,
+                    8 => BookUpdateOptions.Cancel,
                     _ => throw new InvalidOperationException("Unreachable")
                 };
             }

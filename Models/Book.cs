@@ -191,4 +191,39 @@ public class Book
             }
         }
     }
+
+    public void UpdateBookDetails(string title, string author, int totalPages, int? currentPage, int? totalChapters, int? currentChapter, DateTime? dueDate)
+    {
+        if (currentPage > totalPages)
+        {
+            throw new ArgumentOutOfRangeException(nameof(currentPage), "Current page cannot exceed total pages.");
+        }
+
+        if (totalChapters.HasValue && currentChapter > totalChapters)
+        {
+            throw new ArgumentOutOfRangeException(nameof(currentChapter), "Current chapter cannot exceed total chapters.");
+        }
+
+        SetTitle(title);
+        SetAuthor(author);
+
+        // Clearing dependent fields for safety
+        CurrentPage = null;
+        CurrentChapter = null;
+
+        SetTotalPages(totalPages);
+        SetTotalChapters(totalChapters);
+
+        SetCurrentPage(currentPage);
+        SetCurrentChapter(currentChapter);
+
+        if (dueDate.HasValue)
+        {
+            SetDueDate(dueDate.Value);
+        }
+        else
+        {
+            DueDate = null;
+        }
+    }
 }
