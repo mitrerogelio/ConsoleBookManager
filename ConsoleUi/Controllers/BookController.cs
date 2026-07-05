@@ -60,7 +60,7 @@ public class BookController(BookService service)
         }
         catch (Exception e)
         {
-            ConsoleHelper.DisplayError(e.Message);
+            ConsoleHelper.DisplayError(e.Message, pause: true);
         }
     }
 
@@ -69,7 +69,7 @@ public class BookController(BookService service)
         List<Book> books = service.GetBooks(status).ToList();
         if (books.Count == 0)
         {
-            ConsoleHelper.DisplayError($"No books found.");
+            ConsoleHelper.DisplayError("No books found.", pause: true);
             return;
         }
 
@@ -82,44 +82,59 @@ public class BookController(BookService service)
         int bookId = ConsoleHelper.GetInt("Enter the book ID: ", "Invalid Id. Please try again.");
 
         BookUpdateOptions userChoice = BookMenu.SelectPropertyToUpdate();
-        switch (userChoice)
+        try
         {
-            case BookUpdateOptions.Title:
-                string newTitle = ConsoleHelper.GetValidStr("Enter the title: ");
-                service.UpdateTitle(bookId, newTitle);
-                break;
-            case BookUpdateOptions.Author:
-                string newAuthor = ConsoleHelper.GetValidStr("Enter the author name: ");
-                service.UpdateAuthor(bookId, newAuthor);
-                break;
-            case BookUpdateOptions.TotalPages:
-                int newTotalPgs = ConsoleHelper.GetInt("Enter the total number of pages: ",
-                    "Invalid Page Number: Please try again.");
-                service.UpdateTotalPages(bookId, newTotalPgs);
-                break;
-            case BookUpdateOptions.CurrentPage:
-                int newCurrentPg = ConsoleHelper.GetInt("Enter the current page: ", "Invalid. Please try again.");
-                service.UpdateCurrentPage(bookId, newCurrentPg);
-                break;
-            case BookUpdateOptions.TotalChapters:
-                int newTotalChp =
-                    ConsoleHelper.GetInt("Enter the total amount of chapters: ", "Invalid. Please try again.");
-                service.UpdateTotalChapters(bookId, newTotalChp);
-                break;
-            case BookUpdateOptions.CurrentChapter:
-                int newCurrentChp =
-                    ConsoleHelper.GetInt("Enter the current chapter: ", "Invalid. Please try again.");
-                service.UpdateCurrentChapter(bookId, newCurrentChp);
-                break;
-            case BookUpdateOptions.DueDate:
-                DateTime newDate =
-                    ConsoleHelper.GetDate("Enter the due date (MM/DD/YYYY): ", "Invalid. Please try again.");
-                service.SetDueDate(bookId, newDate);
-                break;
-            case BookUpdateOptions.Cancel:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            switch (userChoice)
+            {
+                case BookUpdateOptions.All:
+                    Book book = service.GetRequiredBook(bookId);
+                    var details = BookMenu.GetUpdatedBookDetails(book);
+                    service.UpdateAllFields(bookId, details.title, details.author, details.totalPages,
+                        details.currentPage, details.totalChapters, details.currentChapter, details.dueDate);
+                    break;
+                case BookUpdateOptions.Title:
+                    string newTitle = ConsoleHelper.GetValidStr("Enter the title: ");
+                    service.UpdateTitle(bookId, newTitle);
+                    break;
+                case BookUpdateOptions.Author:
+                    string newAuthor = ConsoleHelper.GetValidStr("Enter the author name: ");
+                    service.UpdateAuthor(bookId, newAuthor);
+                    break;
+                case BookUpdateOptions.TotalPages:
+                    int newTotalPgs = ConsoleHelper.GetInt("Enter the total number of pages: ",
+                        "Invalid Page Number: Please try again.");
+                    service.UpdateTotalPages(bookId, newTotalPgs);
+                    break;
+                case BookUpdateOptions.CurrentPage:
+                    int newCurrentPg = ConsoleHelper.GetInt("Enter the current page: ", "Invalid. Please try again.");
+                    service.UpdateCurrentPage(bookId, newCurrentPg);
+                    break;
+                case BookUpdateOptions.TotalChapters:
+                    int newTotalChp =
+                        ConsoleHelper.GetInt("Enter the total amount of chapters: ", "Invalid. Please try again.");
+                    service.UpdateTotalChapters(bookId, newTotalChp);
+                    break;
+                case BookUpdateOptions.CurrentChapter:
+                    int newCurrentChp =
+                        ConsoleHelper.GetInt("Enter the current chapter: ", "Invalid. Please try again.");
+                    service.UpdateCurrentChapter(bookId, newCurrentChp);
+                    break;
+                case BookUpdateOptions.DueDate:
+                    DateTime newDate =
+                        ConsoleHelper.GetDate("Enter the due date (MM/DD/YYYY): ", "Invalid. Please try again.");
+                    service.SetDueDate(bookId, newDate);
+                    break;
+                case BookUpdateOptions.Cancel:
+                    return;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            ConsoleHelper.DisplaySuccess("Book updated successfully.");
+        }
+        catch (Exception e)
+        {
+            ConsoleHelper.DisplayError(e.Message, pause: true);
         }
     }
 
@@ -133,7 +148,7 @@ public class BookController(BookService service)
         }
         catch (Exception e)
         {
-            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
+            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}", pause: true);
             return;
         }
         ConsoleHelper.DisplaySuccess($"Book {bookId} has been deleted.");
@@ -151,7 +166,7 @@ public class BookController(BookService service)
         }
         catch (Exception e)
         {
-            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}");
+            ConsoleHelper.DisplayError($"Unable to locate your book: {e.Message}", pause: true);
         }
     }
 
@@ -167,7 +182,7 @@ public class BookController(BookService service)
         }
         catch (Exception e)
         {
-            ConsoleHelper.DisplayError($"Unable to generate a reading plan: {e.Message}]");
+            ConsoleHelper.DisplayError($"Unable to generate a reading plan: {e.Message}", pause: true);
         }
     }
 }

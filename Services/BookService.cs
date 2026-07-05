@@ -88,28 +88,11 @@ public class BookService(IBookRepository repository)
         repository.UpdateBook(book);
     }
 
-    public void UpdateAllFields(int bookId, string title, string author, int totalPgs, int? currentPg, int? totalCh, int? currentCh, DateTime? dueDate)
+    public void UpdateAllFields(int bookId, string? title, string? author, int? totalPages, int? currentPage,
+        int? totalChapters, int? currentChapter, DateTime? dueDate)
     {
         Book book = GetRequiredBook(bookId);
-        book.SetTitle(title);
-        book.SetAuthor(author);
-        book.SetTotalPages(totalPgs);
-        if (currentPg is not null)
-        {
-            book.SetCurrentPage(currentPg);
-        }
-        if (totalCh is not null)
-        {
-            book.SetTotalChapters(totalCh);
-        }
-        if (currentCh is not null)
-        {
-            book.SetCurrentChapter(currentCh);
-        }
-        if (dueDate is not null)
-        {
-            book.SetDueDate((DateTime)dueDate);
-        }
+        book.UpdateBookDetails(title, author, totalPages, currentPage, totalChapters, currentChapter, dueDate);
         repository.UpdateBook(book);
     }
 
