@@ -61,6 +61,75 @@ public static class ConsoleHelper
         }
     }
 
+    private static void WriteFieldPrompt(string label, string current)
+    {
+        Console.Write(label);
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.Write($"[{current}] ");
+        Console.ResetColor();
+    }
+
+    private static string? ReadOptionalLine()
+    {
+        string? input = Console.ReadLine()?.Trim();
+        return string.IsNullOrWhiteSpace(input) ? null : input;
+    }
+
+    public static string? GetOptionalStr(string label, string current)
+    {
+        WriteFieldPrompt(label, current);
+        return ReadOptionalLine();
+    }
+
+    public static int? GetOptionalInt(string label, string current, string errorMsg)
+    {
+        while (true)
+        {
+            WriteFieldPrompt(label, current);
+            string? input = ReadOptionalLine();
+
+            if (input is null)
+            {
+                return null;
+            }
+
+            if (int.TryParse(input, out int result) && result >= 0)
+            {
+                return result;
+            }
+
+            DisplayError(errorMsg);
+        }
+    }
+
+    public static DateTime? GetOptionalDate(string label, string current, string errorMsg)
+    {
+        while (true)
+        {
+            WriteFieldPrompt(label, current);
+            string? input = ReadOptionalLine();
+
+            if (input is null)
+            {
+                return null;
+            }
+
+            if (DateTime.TryParse(input, out DateTime result))
+            {
+                if (result >= DateTime.Today)
+                {
+                    return result;
+                }
+
+                DisplayError("Error: Date cannot be in the past.");
+            }
+            else
+            {
+                DisplayError(errorMsg);
+            }
+        }
+    }
+
     public static void DisplaySuccess(string message)
     {
         Console.ForegroundColor = ConsoleColor.Green;
@@ -70,10 +139,16 @@ public static class ConsoleHelper
         Console.ReadKey();
     }
 
-    public static void DisplayError(string message)
+    public static void DisplayError(string message, bool pause = false)
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"\nERROR: {message}");
         Console.ResetColor();
+
+        if (pause)
+        {
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
     }
 }

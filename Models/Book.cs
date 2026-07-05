@@ -191,4 +191,75 @@ public class Book
             }
         }
     }
+
+    public void UpdateBookDetails(string? title, string? author, int? totalPages, int? currentPage,
+        int? totalChapters, int? currentChapter, DateTime? dueDate)
+    {
+        string mergedTitle = title ?? Title;
+        string mergedAuthor = author ?? Author;
+        int mergedTotalPages = totalPages ?? TotalPages;
+        int? mergedCurrentPage = currentPage ?? CurrentPage;
+        int? mergedTotalChapters = totalChapters ?? TotalChapters;
+        int? mergedCurrentChapter = currentChapter ?? CurrentChapter;
+
+        if (string.IsNullOrWhiteSpace(mergedTitle))
+        {
+            throw new ArgumentNullException(nameof(title), "Title cannot be null or empty.");
+        }
+
+        if (string.IsNullOrWhiteSpace(mergedAuthor))
+        {
+            throw new ArgumentNullException(nameof(author), $"{nameof(Author)} cannot be null or empty.");
+        }
+
+        if (mergedTotalPages <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(totalPages), $"{nameof(TotalPages)} must be greater than zero.");
+        }
+
+        if (mergedCurrentPage < 0 || mergedCurrentPage > mergedTotalPages)
+        {
+            throw new ArgumentOutOfRangeException(nameof(currentPage), "Current page cannot be less than zero or exceed total pages.");
+        }
+
+        if (mergedTotalChapters is <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(totalChapters), "TotalChapters must be greater than zero.");
+        }
+
+        if (mergedCurrentChapter is not null)
+        {
+            if (mergedTotalChapters is null)
+            {
+                throw new ArgumentException($"{nameof(TotalChapters)} must have a value and be greater than zero.", nameof(currentChapter));
+            }
+
+            if (mergedCurrentChapter < 0 || mergedCurrentChapter > mergedTotalChapters)
+            {
+                throw new ArgumentOutOfRangeException(nameof(currentChapter), "Current chapter cannot be less than zero or greater than total chapters.");
+            }
+        }
+
+        if (dueDate.HasValue && dueDate.Value < DateTime.Today)
+        {
+            throw new ArgumentOutOfRangeException(nameof(dueDate), dueDate, "Due Date must be today or in the future.");
+        }
+
+        SetTitle(mergedTitle);
+        SetAuthor(mergedAuthor);
+
+        CurrentPage = null;
+        CurrentChapter = null;
+
+        SetTotalPages(mergedTotalPages);
+        SetTotalChapters(mergedTotalChapters);
+
+        SetCurrentPage(mergedCurrentPage);
+        SetCurrentChapter(mergedCurrentChapter);
+
+        if (dueDate.HasValue)
+        {
+            SetDueDate(dueDate.Value);
+        }
+    }
 }

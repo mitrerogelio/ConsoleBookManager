@@ -379,4 +379,169 @@ public class BookTests
 		// Assert
 		Assert.Equal(DateTime.MaxValue, book.DueDate);
 	}
+
+	[Fact]
+	public void UpdateBookDetails_AllNull_KeepsEveryField()
+	{
+		// Arrange
+		Book book = new("Original Title", "Original Author", 100);
+		book.SetTotalChapters(10);
+		book.SetCurrentChapter(4);
+		book.SetCurrentPage(50);
+		DateTime dueDate = DateTime.Today.AddDays(10);
+		book.SetDueDate(dueDate);
+
+		// Act
+		book.UpdateBookDetails(null, null, null, null, null, null, null);
+
+		// Assert
+		Assert.Equal("Original Title", book.Title);
+		Assert.Equal("Original Author", book.Author);
+		Assert.Equal(100, book.TotalPages);
+		Assert.Equal(50, book.CurrentPage);
+		Assert.Equal(10, book.TotalChapters);
+		Assert.Equal(4, book.CurrentChapter);
+		Assert.Equal(dueDate, book.DueDate);
+	}
+
+	[Fact]
+	public void UpdateBookDetails_OnlyTitle_ChangesTitleOnly()
+	{
+		// Arrange
+		Book book = new("Old Title", "Author", 100);
+		book.SetCurrentPage(50);
+
+		// Act
+		book.UpdateBookDetails("New Title", null, null, null, null, null, null);
+
+		// Assert
+		Assert.Equal("New Title", book.Title);
+		Assert.Equal("Author", book.Author);
+		Assert.Equal(100, book.TotalPages);
+		Assert.Equal(50, book.CurrentPage);
+	}
+
+	[Fact]
+	public void UpdateBookDetails_MultipleFields_UpdatesEach()
+	{
+		// Arrange
+		Book book = new("Old", "Old Author", 100);
+		DateTime dueDate = DateTime.Today.AddDays(5);
+
+		// Act
+		book.UpdateBookDetails("New", "New Author", 200, 120, 20, 10, dueDate);
+
+		// Assert
+		Assert.Equal("New", book.Title);
+		Assert.Equal("New Author", book.Author);
+		Assert.Equal(200, book.TotalPages);
+		Assert.Equal(120, book.CurrentPage);
+		Assert.Equal(20, book.TotalChapters);
+		Assert.Equal(10, book.CurrentChapter);
+		Assert.Equal(dueDate, book.DueDate);
+	}
+
+	[Fact]
+	public void UpdateBookDetails_LowerTotalPagesWithNewCurrentPage_Succeeds()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+		book.SetCurrentPage(80);
+
+		// Act
+		book.UpdateBookDetails(null, null, 50, 40, null, null, null);
+
+		// Assert
+		Assert.Equal(50, book.TotalPages);
+		Assert.Equal(40, book.CurrentPage);
+	}
+
+	[Fact]
+	public void UpdateBookDetails_InvalidCurrentPage_ThrowsAndLeavesBookUnchanged()
+	{
+		// Arrange
+		Book book = new("Keep Title", "Keep Author", 100);
+		book.SetCurrentPage(50);
+
+		// Act & Assert
+		Assert.Throws<ArgumentOutOfRangeException>(() =>
+		{
+			book.UpdateBookDetails("Changed Title", null, null, 900, null, null, null);
+		});
+
+		Assert.Equal("Keep Title", book.Title);
+		Assert.Equal(100, book.TotalPages);
+		Assert.Equal(50, book.CurrentPage);
+	}
+
+	[Fact]
+	public void UpdateBookDetails_LowerTotalPagesBelowExistingCurrentPage_ThrowsAndLeavesBookUnchanged()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+		book.SetCurrentPage(80);
+
+		// Act & Assert
+		Assert.Throws<ArgumentOutOfRangeException>(() =>
+		{
+			book.UpdateBookDetails(null, null, 50, null, null, null, null);
+		});
+
+		Assert.Equal(100, book.TotalPages);
+		Assert.Equal(80, book.CurrentPage);
+	}
+
+	[Fact]
+	public void UpdateBookDetails_CurrentChapterWithoutTotalChapters_Throws()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act & Assert
+		Assert.Throws<ArgumentException>(() =>
+		{
+			book.UpdateBookDetails(null, null, null, null, null, 2, null);
+		});
+	}
+
+	[Fact]
+	public void UpdateBookDetails_BlankTitle_ThrowsArgumentNullException()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() =>
+		{
+			book.UpdateBookDetails("   ", null, null, null, null, null, null);
+		});
+	}
+
+	[Fact]
+	public void UpdateBookDetails_InvalidTotalPages_Throws()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+
+		// Act & Assert
+		Assert.Throws<ArgumentOutOfRangeException>(() =>
+		{
+			book.UpdateBookDetails(null, null, 0, null, null, null, null);
+		});
+	}
+
+	[Fact]
+	public void UpdateBookDetails_NullDueDate_KeepsExistingDueDate()
+	{
+		// Arrange
+		Book book = new("Test Title", "Test Author", 100);
+		DateTime dueDate = DateTime.Today.AddDays(7);
+		book.SetDueDate(dueDate);
+
+		// Act
+		book.UpdateBookDetails("New Title", null, null, null, null, null, null);
+
+		// Assert
+		Assert.Equal(dueDate, book.DueDate);
+	}
 }

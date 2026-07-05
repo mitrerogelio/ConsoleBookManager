@@ -88,6 +88,14 @@ public class BookService(IBookRepository repository)
         repository.UpdateBook(book);
     }
 
+    public void UpdateAllFields(int bookId, string? title, string? author, int? totalPages, int? currentPage,
+        int? totalChapters, int? currentChapter, DateTime? dueDate)
+    {
+        Book book = GetRequiredBook(bookId);
+        book.UpdateBookDetails(title, author, totalPages, currentPage, totalChapters, currentChapter, dueDate);
+        repository.UpdateBook(book);
+    }
+
     public void WishlistBook(int bookId, bool wishlistStatus)
     {
         Book book = GetRequiredBook(bookId);

@@ -83,6 +83,7 @@ public static class BookView
         Console.WriteLine("\n----------------------------------------");
         Console.WriteLine(" SELECT PROPERTY TO UPDATE");
         Console.WriteLine("----------------------------------------");
+        Console.WriteLine(" 0. All");
         Console.WriteLine(" 1. Title");
         Console.WriteLine(" 2. Author");
         Console.WriteLine(" 3. Total Pages");
@@ -90,7 +91,7 @@ public static class BookView
         Console.WriteLine(" 5. Total Chapters");
         Console.WriteLine(" 6. Current Chapter");
         Console.WriteLine(" 7. Due Date");
-        Console.WriteLine(" 0. Cancel / Go Back");
+        Console.WriteLine(" 8. Cancel / Go Back");
         Console.WriteLine("----------------------------------------");
     }
 
